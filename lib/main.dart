@@ -234,7 +234,7 @@ class _RegistrationBrowserState extends State<RegistrationBrowser> {
                         }
                       },
                       onReceivedHttpError: (controller, request, response) {
-                        if (request.isForMainFrame == true && response.statusCode >= 500 && mounted) {
+                        if (request.isForMainFrame == true && (response.statusCode ?? 0) >= 500 && mounted) {
                           setState(() {
                             _error = 'Smart’s registration server is temporarily unavailable (${response.statusCode}). Try again later.';
                           });
