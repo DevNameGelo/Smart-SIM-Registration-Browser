@@ -16,7 +16,7 @@ Unlike a plain embedded browser, this app handles Android WebView permission req
 
 ## Build APK using GitHub Actions
 
-Push this project to a GitHub repository. The workflow creates the Android platform folder when missing, installs Flutter dependencies, and builds a debug APK. Download the `smart-sim-registration-debug-apk` artifact from Actions.
+Push this project to a GitHub repository. The workflow creates the Android platform folder when missing, installs Flutter dependencies, applies a temporary AGP 9 compatibility flag for the legacy `flutter_inappwebview_android` ProGuard configuration, and builds a debug APK. The upstream plugin has a known AGP 9 issue; the compatibility flag is a workaround and should be removed after the plugin fixes its Gradle configuration. Download the `smart-sim-registration-debug-apk` artifact from Actions.
 
 ## Local build
 

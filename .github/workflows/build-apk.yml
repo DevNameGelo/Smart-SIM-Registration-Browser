@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 45
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -31,6 +31,19 @@ jobs:
           if [ ! -d android ]; then
             flutter create --platforms=android --project-name=smart_sim_registration_browser --org=com.rgc.smartreg .
           fi
+
+      - name: Apply AGP 9 legacy ProGuard compatibility workaround
+        run: |
+          python3 - <<'PYCODE'
+          from pathlib import Path
+          p = Path('android/gradle.properties')
+          s = p.read_text() if p.exists() else ''
+          key = 'android.r8.proguardAndroidTxt.disallowed'
+          lines = [line for line in s.splitlines() if not line.strip().startswith(key + '=')]
+          lines.append(key + '=false')
+          p.write_text('\n'.join(lines) + '\n')
+          print(f'Applied temporary AGP 9 compatibility flag in {p}')
+          PYCODE
 
       - name: Configure Android manifest permissions
         run: |
