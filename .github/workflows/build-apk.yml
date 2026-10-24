@@ -70,13 +70,20 @@ jobs:
         run: flutter analyze
         continue-on-error: true
 
-      - name: Build debug APK
-        run: flutter build apk --debug
+      - name: Build optimized release APKs (split by CPU architecture)
+        run: flutter build apk --release --split-per-abi --obfuscate --split-debug-info=build/symbols
 
-      - name: Upload APK artifact
+      - name: Create ZIP containing the smaller release APKs
+        run: |
+          cd build/app/outputs/flutter-apk
+          zip -9 smart-sim-registration-release-apks.zip app-armeabi-v7a-release.apk app-arm64-v8a-release.apk app-x86_64-release.apk
+
+      - name: Upload release APKs and ZIP
         uses: actions/upload-artifact@v4
         with:
-          name: smart-sim-registration-debug-apk
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          name: smart-sim-registration-release-apks
+          path: |
+            build/app/outputs/flutter-apk/app-*-release.apk
+            build/app/outputs/flutter-apk/smart-sim-registration-release-apks.zip
           if-no-files-found: error
           retention-days: 14

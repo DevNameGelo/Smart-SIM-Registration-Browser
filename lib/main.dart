@@ -89,10 +89,19 @@ class _RegistrationBrowserState extends State<RegistrationBrowser> {
 
   Future<PermissionResponse?> _handleWebPermission(
       InAppWebViewController controller, PermissionRequest request) async {
+    // The Smart portal may use an HTTPS verification provider inside an iframe.
+    // Check the top-level page is still the official Smart portal, and require
+    // HTTPS for the requesting frame before granting camera/microphone access.
     final origin = Uri.tryParse(request.origin.toString());
-    final host = origin?.host.toLowerCase() ?? '';
-    final isOfficialSmart = host == 'smart.com.ph' || host.endsWith('.smart.com.ph');
-    if (!isOfficialSmart || origin?.scheme != 'https') {
+    final topLevel = Uri.tryParse((await controller.getUrl())?.toString() ?? '');
+    final topHost = topLevel?.host.toLowerCase() ?? '';
+    final topLevelIsSmart = topLevel?.scheme == 'https' &&
+        (topHost == 'smart.com.ph' || topHost.endsWith('.smart.com.ph'));
+    final secureOrigin = origin?.scheme == 'https';
+    final supportedResources = request.resources.every((resource) =>
+        resource == PermissionResourceType.CAMERA ||
+        resource == PermissionResourceType.MICROPHONE);
+    if (!topLevelIsSmart || !secureOrigin || !supportedResources || request.resources.isEmpty) {
       return PermissionResponse(
         resources: request.resources,
         action: PermissionResponseAction.DENY,
@@ -190,7 +199,7 @@ class _RegistrationBrowserState extends State<RegistrationBrowser> {
                         useShouldOverrideUrlLoading: true,
                         javaScriptCanOpenWindowsAutomatically: true,
                         supportMultipleWindows: false,
-                        mediaPlaybackRequiresUserGesture: true,
+                        mediaPlaybackRequiresUserGesture: false,
                         allowsInlineMediaPlayback: true,
                         thirdPartyCookiesEnabled: true,
                         sharedCookiesEnabled: true,

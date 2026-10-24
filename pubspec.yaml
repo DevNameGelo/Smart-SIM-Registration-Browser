@@ -1,7 +1,7 @@
 name: smart_sim_registration_browser
 description: A dedicated browser for Smart Philippines SIM registration with Android WebView camera and file upload permission handling.
 publish_to: 'none'
-version: 1.0.2+3
+version: 1.0.3+4
 
 environment:
   sdk: '>=3.8.0 <4.0.0'

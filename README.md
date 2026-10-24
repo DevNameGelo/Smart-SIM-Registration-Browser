@@ -9,20 +9,20 @@ Unlike a plain embedded browser, this app handles Android WebView permission req
 ## Important limits
 
 - It cannot bypass Android's permission prompts or Smart's own website/server checks.
-- Camera access is granted only to HTTPS pages on `smart.com.ph` and its subdomains; other origins are denied.
+- Camera/microphone access is considered only while the top-level page is the official HTTPS Smart portal. HTTPS verification frames may request media access; other resources and insecure origins are denied.
 - If the Android permission was permanently denied, enable Camera in Android Settings > Apps > Smart SIM Registration Browser > Permissions.
 - The portal may still have outages, image size/format restrictions, or verification rules outside the app's control.
 - The app is an independent browser helper, not an official Smart Communications app. Do not share OTPs or registration data with anyone.
 
 ## Build APK using GitHub Actions
 
-Push this project to a GitHub repository. The workflow creates the Android platform folder when missing, installs Flutter dependencies, applies a temporary AGP 9 compatibility flag for the legacy `flutter_inappwebview_android` ProGuard configuration, and builds a debug APK. The upstream plugin has a known AGP 9 issue; the compatibility flag is a workaround and should be removed after the plugin fixes its Gradle configuration. Download the `smart-sim-registration-debug-apk` artifact from Actions.
+Push this project to a GitHub repository. The workflow creates the Android platform folder when missing, installs Flutter dependencies, applies a temporary AGP 9 compatibility flag for the legacy `flutter_inappwebview_android` ProGuard configuration, and builds optimized release APKs split by CPU architecture, then creates a ZIP containing them. This reduces the APK size for each device compared with one universal/debug APK. The upstream plugin has a known AGP 9 issue; the compatibility flag is a workaround and should be removed after the plugin fixes its Gradle configuration. Download the `smart-sim-registration-release-apks` artifact from Actions. Choose `app-arm64-v8a-release.apk` for most modern Android phones.
 
 ## Local build
 
 ```bash
 flutter pub get
-flutter build apk --debug
+flutter build apk --release --split-per-abi --obfuscate --split-debug-info=build/symbols
 ```
 
 Minimum Android API: 21 (Android 5.0); Android 10 and newer are supported by the Flutter WebView runtime. Actual camera and upload behavior depends on Android System WebView/Chrome being updated and the Smart portal itself.
